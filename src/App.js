@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCoffee } from "@fortawesome/free-solid-svg-icons";
-import { faPen } from '@fortawesome/free-solid-svg-icons'
+import { faPen } from "@fortawesome/free-solid-svg-icons";
 import darkMode from "./darkMode.css";
 function Chat() {
   const [messages, setMessages] = useState([]);
@@ -13,7 +13,7 @@ function Chat() {
   const [status, setStatus] = useState("");
   const ws = useRef(null);
   const [darkMode, setDarkMode] = useState(false);
-  const [edit, setEdit] = useState({})
+  const [edit, setEdit] = useState({});
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
   };
@@ -43,8 +43,20 @@ function Chat() {
     };
   }, [isPaused]);
 
-  const sendMessage = () => {
-    ws.current.send(JSON.stringify({ nickname: user, message: message }));
+  const sendMessage = (e) => {
+    if (e) {
+      e.preventDefault();
+    }
+
+    if (message && message !== "") {
+      if (edit?.message && edit?.message !== "") {
+        alert("edit mode!");
+        // another code
+      } else {
+        ws.current.send(JSON.stringify({ nickname: user, message: message }));
+      }
+      setMessage("");
+    }
   };
 
   const handleSubmit = (event) => {
@@ -54,12 +66,12 @@ function Chat() {
     setMessages([...messages, newMessage]);
     input.value = "";
   };
-  useEffect(()=>{
-if(edit?.message){
-  setMessage(edit?.message)
-}
-  },[edit])
-console.log(edit,message)
+  useEffect(() => {
+    if (edit?.message) {
+      setMessage(edit?.message);
+    }
+  }, [edit]);
+  console.log(edit, message);
   return (
     <div className={`first-slide ${darkMode ? "moon-theme" : ""}`}>
       <div className={`chat ${darkMode ? "moon-theme" : ""}`}>
@@ -69,28 +81,33 @@ console.log(edit,message)
           onClick={toggleDarkMode}
         ></button>
         <input
-          placeholder="your name"
+          placeholder='your name'
           value={user}
           onChange={(e) => setUser(e.target.value)}
         />
         <h1>{status}</h1>
-        <div className="messages">
+        <div className='messages'>
           {data.map((message, index) => (
-            <Message key={index} text={message} user={user} edit ={edit} setEdit = {setEdit} />
+            <Message
+              key={index}
+              text={message}
+              user={user}
+              edit={edit}
+              setEdit={setEdit}
+            />
           ))}
         </div>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={sendMessage}>
           <input
-            type="text"
-            name="message"
-            placeholder="Enter message"
+            type='text'
+            name='message'
+            placeholder='Enter message'
             value={message}
             onChange={(e) => setMessage(e.target.value)}
           />
-          <button onClick={sendMessage} type="submit">
-            Send
+          <button onClick={sendMessage} type='submit'>
+            {edit?.message ? "edit" : "send"}
           </button>
-          {/* type='submit' */}
         </form>
       </div>
     </div>
@@ -114,7 +131,9 @@ function Message(props) {
         }`}
       >
         {data.nickname}:{data.message}
-        {data.nickname === props.user && <FontAwesomeIcon onClick={()=>props.setEdit(data)} icon={faPen}/>}
+        {data.nickname === props.user && (
+          <FontAwesomeIcon onClick={() => props.setEdit(data)} icon={faPen} />
+        )}
       </div>
     );
   } else {
